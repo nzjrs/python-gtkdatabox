@@ -1,0 +1,58 @@
+%%
+headers
+#include <Python.h>
+#include <gtkdatabox.h>
+#include <gtkdatabox_bars.h>
+#include <gtkdatabox_cross_simple.h>
+#include <gtkdatabox_graph.h>
+#include <gtkdatabox_grid.h>
+#include <gtkdatabox_lines.h>
+#include <gtkdatabox_markers.h>
+#include <gtkdatabox_marshal.h>
+#include <gtkdatabox_points.h>
+#include <gtkdatabox_ruler.h>
+#include <gtkdatabox_scale.h>
+#include <gtkdatabox_typedefs.h>
+#include <gtkdatabox_xyc_graph.h>
+#include "gtkdatabox_plot.h"
+#include "util.h"
+#include "pygobject.h"
+#include <glib.h>
+#include <stdio.h>
+%%
+modulename gtkdatabox
+%%
+import gobject.GObject as PyGObject_Type
+import gtk.gdk.Pixmap as PyGdkPixmap_Type
+import gtk.gdk.Color as PyGdkColor_Type
+import gtk.gdk.GC as PyGdkGC_Type
+import gtk.Orientation as PyGtkOrientation_Type
+import gtk.Adjustment as PyGtkAdjustment_Type
+import gtk.Widget as PyGtkWidget_Type
+%%
+ignore-glob
+	*_get_type
+%%
+override gtk_databox_plot_update kwargs
+static PyObject *
+_wrap_gtk_databox_plot_update(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = { "values", NULL };
+    PyObject *py_list;
+    float *list;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!:SlidingPlot.update", kwlist, &PyList_Type, &py_list))
+        return NULL;
+
+    list = _helper_unwrap_float_pylist(py_list);
+    if (list == NULL || PyErr_Occurred())
+        return NULL;
+
+    gtk_databox_plot_update(GTK_DATABOX_PLOT(self->obj), list);
+    g_free(list);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+%%
+// vim: filetype=c
